@@ -1,0 +1,88 @@
+GET http://localhost:3003/MyPosts/64af41bab647008738174797
+
+
+################
+
+GET http://localhost:3003/posts?page=1&itemForPage=5
+
+################
+
+ http://localhost:3003/post/like/64b08fb923577febdfc029c6 HTTP/1.1
+
+
+###########
+DELETE http://localhost:3003/delete
+
+############
+
+
+
+POST http://localhost:3003/resource HTTP/1.1
+Content-Type: application/json
+
+{
+  "index": 0,
+  "guid": "c6abe480-5d8a-42cf-a8d3-02edec35aabd",
+  "isActive": false,
+  "balance": "$1,909.91",
+  "picture": "http://placehold.it/32x32",
+  "age": 27,
+  "eyeColor": "green",
+  "name": {
+    "first": "Leona",
+    "last": "Alston"
+  },
+  "company": "INSURITY",
+  "email": "leona.alston@insurity.name",
+  "phone": "+1 (927) 400-3801",
+  "address": "888 Varick Avenue, Suitland, Palau, 5763",
+  "about": "Ut qui est Lorem exercitation commodo in mollit duis ea esse culpa sint. Aliqua incididunt nisi elit amet officia excepteur in enim. Et minim sit irure consequat ea esse in id magna enim. Culpa ipsum qui ea culpa occaecat labore ad consequat et cupidatat voluptate laborum consequat. Consequat dolore eiusmod officia id officia officia occaecat eiusmod non minim aute eiusmod consequat deserunt. Aute consectetur veniam velit ad et esse ipsum non et consectetur pariatur consectetur eu quis.",
+  "registered": "Sunday, February 23, 2014 1:31 PM",
+  "latitude": "44.746873",
+  "longitude": "159.716572",
+  "tags": ["dolor", "ad", "aliquip", "sit", "velit"],
+  "range": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "friends": [
+    {
+      "id": 0,
+      "name": "Webster Sellers"
+    },
+    {
+      "id": 1,
+      "name": "Le Fitzgerald"
+    },
+    {
+      "id": 2,
+      "name": "Swanson Nunez"
+    }
+  ],
+  "greeting": "Hello, Leona! You have 9 unread messages.",
+  "favoriteFruit": "strawberry"
+}
+
+##########
+GET http://localhost:3003/resource?ageA=26
+
+##########
+GET http://localhost:3003/resource?ageA=26&ageB=30
+
+
+##########
+GET http://localhost:3003/resource/isactive
+
+
+##########
+GET http://localhost:3003/resources/eye?notEyeColor=green
+
+
+#########
+GET http://localhost:3003/resources/notEye
+
+
+##########
+GET http://localhost:3003/resources/company
+
+
+
+##############
+GET http://localhost:3003/getReviews/64bbb2628b5b1ac2bbcfc137
