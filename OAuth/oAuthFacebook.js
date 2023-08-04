@@ -21,7 +21,7 @@ facebook.use(passport.session());
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://localhost:3000/auth/facebook/callback"
+    callbackURL: process.env.URI + "/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     done(null, profile);
@@ -67,12 +67,12 @@ facebook.get('/auth/facebook/callback',
             }, process.env.KEY_JWT, { expiresIn: '1h' });
 
             // Reindirizza con il token nella query string
-            res.redirect(`http://localhost:3000/success?token=${token}`);
+            res.redirect(`${process.env.URI_REDIRECT}/success?token=${token}`);
             console.log(req.user);
         }
         catch (error) {
             console.log(error);
-            res.redirect(`http://localhost:3000/error?message=${error.message}`);
+            res.redirect(`${process.env.URI_REDIRECT}/error?message=${error.message}`);
         }
     });
 
