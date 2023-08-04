@@ -24,7 +24,7 @@ google.use(passport.session());
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_ID,
     clientSecret: process.env.GOOGLE_SECRE,
-    callbackURL: "https://striveblog.onrender.com/auth/google/callback"
+    callbackURL: process.env.URI + '/auth/google/callback',
   },
   function(accessToken, refreshToken, profile, done) {
     done(null, profile);
@@ -69,12 +69,11 @@ google.get('/auth/google/callback',
                 avatar: googleUser.avatar
             }, process.env.KEY_JWT, { expiresIn: '1h' });
 
-            // Reindirizza con il token nella query string
-            res.redirect(`http://localhost:3000/success?token=${token}`);
+            res.redirect(`${process.env.URI}/success?token=${token}`);
         }
         catch (error) {
             console.log(error);
-            res.redirect(`http://localhost:3000/error?message=${error.message}`);
+            res.redirect(`${process.env.URI}/error?message=${error.message}`);
         }
     });
 
