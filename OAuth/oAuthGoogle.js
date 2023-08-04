@@ -69,11 +69,11 @@ google.get('/auth/google/callback',
                 avatar: googleUser.avatar
             }, process.env.KEY_JWT, { expiresIn: '1h' });
 
-            res.redirect(`${process.env.URI}/success?token=${token}`);
+            res.redirect(`${process.env.URI_REDIRECT}/success?token=${token}`);
         }
         catch (error) {
             console.log(error);
-            res.redirect(`${process.env.URI}/error?message=${error.message}`);
+            res.redirect(`${process.env.URI_REDIRECT}/error?message=${error.message}`);
         }
     });
 
