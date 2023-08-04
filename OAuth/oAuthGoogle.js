@@ -24,7 +24,7 @@ google.use(passport.session());
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_ID,
     clientSecret: process.env.GOOGLE_SECRE,
-    callbackURL: "http://localhost:3003/auth/google/callback"
+    callbackURL: "https://striveblog.onrender.com/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     done(null, profile);
