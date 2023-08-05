@@ -49,7 +49,7 @@ github.get('/auth/github/callback',
                     surname: req.user.displayName.split(" ")[1],
                     email: req.user.emails[0].value,
                     provider: "github",
-                    avatar: req.user.avatar_url,
+                    avatar: req.user._json.avatar_url,
                 });
 
                 await githubUser.save();
