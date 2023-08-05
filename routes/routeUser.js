@@ -45,19 +45,25 @@ router.post('/login', bcrypterAuth, (req, res) => {
 });
 
 
-// When register crypting pw
-router.post('/register', validationNewUser, validateMiddleware, (req, res) => {
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new SchemaUser({
+router.post('/register', validationNewUser, validateMiddleware, async (req, res) => {
+  try {
+    const user = await SchemaUser.findOne({ email: req.body.email });
+
+    if (user) {
+      return res.status(409).json({
+        statusCode: 409,
+        message: 'Email already exists',
+      });
+    } else {
+      const hash = await bcrypt.hash(req.body.password, 10);
+      const newUser = new SchemaUser({
         ...req.body,
         password: hash, // Hash password
       });
-      return user.save();
-    })
-    .then(() => {
-      // Send email whit mailgun
+
+      await newUser.save();
+
+      // Send email with mailgun
       const data = { username: req.body.name };
       const emailcontent = template(data);
 
@@ -72,20 +78,13 @@ router.post('/register', validationNewUser, validateMiddleware, (req, res) => {
 
       res.status(201).json({
         message: 'User added successfully',
-      });  
-    })
-    .catch((error) => {
-      if (error.code === 11000) {
-        res.status(409).json({
-          statusCode: 409,
-          error: 'Email already exists',
-        });
-      }else{
-        res.status(500).json({
-          error: error,
-        });
-      }
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
     });
+  }
 });
 
 
@@ -111,11 +110,13 @@ router.delete('/delete', verifyToken, async (req, res) => {
 
     res.status(201).json({
       message: 'User and related posts deleted successfully',
-      data: { deletedUser,
-         deletedPosts,
-          delateReview,
-          deleteLike,
-          deleteSave },
+      data: {
+        deletedUser,
+        deletedPosts,
+        delateReview,
+        deleteLike,
+        deleteSave
+      },
     });
   } catch (error) {
     res.status(500).json({

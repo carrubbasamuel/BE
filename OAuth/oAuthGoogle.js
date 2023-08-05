@@ -46,16 +46,17 @@ google.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }));
 
 google.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/' }),
+    passport.authenticate('google', { failureRedirect: process.env.URI_REDIRECT+'/login' }),
     async function (req, res) {
         try {
-            let googleUser = await SchemaUser.findOne({ email: req.user.emails[0].value });
+            let googleUser = await SchemaUser.findOne({ email: req.user.emails[0].value, provider: "google" });
 
             if (!googleUser) {
                 googleUser = new SchemaUser({
                     name: req.user.name.givenName,
                     surname: req.user.name.familyName,
                     email: req.user.emails[0].value,
+                    provider: "google",
                     avatar: req.user.photos[0].value,
                 });
                 await googleUser.save();
@@ -73,7 +74,7 @@ google.get('/auth/google/callback',
         }
         catch (error) {
             console.log(error);
-            res.redirect(`${process.env.URI_REDIRECT}/error?message=${error.message}`);
+            res.redirect(`${process.env.URI_REDIRECT}/login`);
         }
     });
 

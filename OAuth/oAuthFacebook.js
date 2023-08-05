@@ -21,9 +21,11 @@ facebook.use(passport.session());
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: process.env.URI + "/auth/facebook/callback"
+    callbackURL: process.env.URI + "/auth/facebook/callback",
+    profileFields: ['id', 'displayName', 'photos', 'email']
   },
   function(accessToken, refreshToken, profile, done) {
+    console.log(profile.email);
     done(null, profile);
   }
 ));
@@ -39,14 +41,14 @@ passport.deserializeUser((user, done) => {
 );
 
 facebook.get('/auth/facebook',
-    passport.authenticate('facebook', { scope: ['email'] })
+    passport.authenticate('facebook', { scope: ['email'], prompt: 'select_account' })
 );
 
 facebook.get('/auth/facebook/callback',
     passport.authenticate('facebook', { failureRedirect: '/' }),
     async function (req, res) {
         try {
-            let facebookUser = await SchemaUser.findOne({ email: req.user.emails[0].value });
+           /*  let facebookUser = await SchemaUser.findOne({ email: req.user.emails[0].value });
 
             if (!facebookUser) {
                 facebookUser = new SchemaUser({
@@ -65,7 +67,7 @@ facebook.get('/auth/facebook/callback',
                 email: facebookUser.email,
                 avatar: facebookUser.avatar
             }, process.env.KEY_JWT, { expiresIn: '1h' });
-
+ */
             // Reindirizza con il token nella query string
             res.redirect(`${process.env.URI_REDIRECT}/success?token=${token}`);
             console.log(req.user);

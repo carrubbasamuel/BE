@@ -21,10 +21,10 @@ github.use(passport.session());
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/github/callback"
+    callbackURL: process.env.URI + "/auth/github/callback",
+    scope: ['user:email'],
 },
     function (accessToken, refreshToken, profile, done) {
-        console.log(profile);
         return done(null, profile);
     }
 ));
@@ -38,20 +38,39 @@ passport.deserializeUser((user, done) => {
 }
 );
 
-github.get('/auth/github',
-    passport.authenticate('github', { scope: ['user:email'] })),
-    (req, res) => {
-        console.log(req.user);
-    }
-
-
 github.get('/auth/github/callback',
-    passport.authenticate('github', { failureRedirect: '/login' }),
-    function (req, res) {
-        res.redirect('http://localhost:3000/login');
-    });
+    passport.authenticate('github', { failureRedirect: process.env.URI_REDIRECT + '/login' }),
+    async function (req, res) {
+        try {
+            let githubUser = await SchemaUser.findOne({ email: req.user.emails[0].value, provider: "github" });
+            if (!githubUser) {
+                githubUser = new SchemaUser({
+                    name: req.user.displayName.split(" ")[0],
+                    surname: req.user.displayName.split(" ")[1],
+                    email: req.user.emails[0].value,
+                    provider: "github",
+                    avatar: req.user.avatar_url,
+                });
 
+                await githubUser.save();
+            }
 
+                const token = jwt.sign({
+                    userId: githubUser._id,
+                    name: githubUser.name,
+                    surname: githubUser.surname,
+                    email: githubUser.email,
+                    avatar: githubUser.avatar
+                }, process.env.KEY_JWT, { expiresIn: '1h' });
+
+                res.redirect(`${process.env.URI_REDIRECT}/success?token=${token}`);
+            
+        } catch (error) {
+            console.error(error);
+            res.redirect(process.env.URI_REDIRECT + '/login');
+        }
+    }
+);
 
 
 module.exports = github;
