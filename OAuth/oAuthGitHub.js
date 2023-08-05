@@ -42,7 +42,7 @@ github.get('/auth/github/callback',
     passport.authenticate('github', { failureRedirect: process.env.URI_REDIRECT + '/login' }),
     async function (req, res) {
         try {
-            let githubUser = await SchemaUser.findOne({ email: req.user.emails[0].value, provider: "github" });
+            let githubUser = await SchemaUser.findOne({ email: req.user.emails[0].value });
             if (!githubUser) {
                 githubUser = new SchemaUser({
                     name: req.user.displayName.split(" ")[0],
@@ -51,7 +51,6 @@ github.get('/auth/github/callback',
                     provider: "github",
                     avatar: req.user._json.avatar_url,
                 });
-
                 await githubUser.save();
             }
 

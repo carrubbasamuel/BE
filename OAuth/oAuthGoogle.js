@@ -49,7 +49,7 @@ google.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: process.env.URI_REDIRECT+'/login' }),
     async function (req, res) {
         try {
-            let googleUser = await SchemaUser.findOne({ email: req.user.emails[0].value, provider: "google" });
+            let googleUser = await SchemaUser.findOne({ email: req.user.emails[0].value });
 
             if (!googleUser) {
                 googleUser = new SchemaUser({
@@ -73,7 +73,6 @@ google.get('/auth/google/callback',
             res.redirect(`${process.env.URI_REDIRECT}/success?token=${token}`);
         }
         catch (error) {
-            console.log(error);
             res.redirect(`${process.env.URI_REDIRECT}/login`);
         }
     });

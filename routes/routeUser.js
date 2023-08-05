@@ -18,6 +18,7 @@ const checkFilePresence = require('../middleware/midCheckFilePresence');
 
 
 
+
 // Login decrypting pw
 router.post('/login', bcrypterAuth, (req, res) => {
   try {
@@ -156,6 +157,38 @@ router.patch('/updateAvatar', checkFilePresence('avatar'), verifyToken, async (r
         });
       });
   });
+});
+
+const controllerPost = require('../middleware/midControllPosts')
+//fetch an author
+router.get('/user/:id',verifyToken, async (req, res) => {
+  try {
+    const user = await SchemaUser.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+    const allPosts = await SchemaPost.find({ author: req.params.id }).populate('author', 'name surname avatar');
+    const posts = controllerPost(allPosts, req);
+    res.status(200).json({
+      statusCode: 200,
+      message: 'User fetched successfully',
+      userSelected: {
+        user:{
+          email: user.email,
+          name: user.name,
+          surname: user.surname,
+          avatar: user.avatar,
+        },
+        userPosts: posts,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+    });
+  }
 });
 
 
