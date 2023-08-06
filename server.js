@@ -1,55 +1,43 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
+const app = require('./app');
+const http = require('http');
+const io = require('socket.io');
 
+const server = http.createServer(app);
+const socketServer = io(server, {
+  cors: {
+    origin: '*',
+  },
+});
 
+const connectedUsers = {}; // Mappa che associa l'ID utente con l'ID Socket.IO
 
-require("dotenv").config();
+socketServer.on('connection', (socket) => {
+  console.log('Nuova connessione');
 
-const app = express();
-app.use(cors());
+  // Listener per il messaggio "like"
+  socket.on('like', (data) => {
+    const ownerIdSocketId = connectedUsers[data];
 
+    if (ownerIdSocketId) {
+      socketServer.to(ownerIdSocketId).emit('notification', 'Qualcosa di interessante è successo!');
+    }
+  });
 
-// middleware
-app.use(express.json());
-const { verifyToken } = require("./middleware/midJWT.js");
+  socket.on('setUserId', (userId) => {
+    console.log('setUserId', userId);
+    connectedUsers[userId] = socket.id;
+  });
 
+  // Listener per la disconnessione dell'utente
+  socket.on('disconnect', () => {
+    // Rimuovi l'associazione quando l'utente si disconnette
+    const userId = Object.keys(connectedUsers).find((key) => connectedUsers[key] === socket.id);
+    if (userId) {
+      delete connectedUsers[userId];
+    }
+  });
+});
 
-
-// connessione al DB
-mongoose.connect(process.env.MONGO_KEY);
-
-const db = mongoose.connection;
-db.on("error", (error) => console.error(error));
-db.once("open", () => console.log("Connessione al DB avvenuta con successo!"));
-
-//OAuth
-const google = require("./OAuth/oAuthGoogle.js");
-const facebook = require("./OAuth/oAuthFacebook.js");
-const github = require("./OAuth/oAuthGitHub.js");
-
-app.use("/", google);// google login
-app.use("/", facebook);// facebook login
-app.use("/", github);// github login
-
-
-
-//routes
-const Post = require("./routes/routePost.js");
-const User = require("./routes/routeUser.js");
-const Resource = require("./routes/routeResources.js");
-const Review = require("./routes/routeReview.js");
-
-
-app.use("/", User);
-app.use("/", Resource);
-app.use("/", verifyToken, Review);
-app.use("/", verifyToken, Post);
-
-
-
-//avvio del server
-app.listen(3003, () => console.log("Server avviato con successo!"));
-
-
-  
+server.listen(3003, () => {
+  console.log('Il server è in esecuzione sulla porta 3003');
+});
