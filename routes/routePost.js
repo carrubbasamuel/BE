@@ -5,6 +5,8 @@ const SchemaPost = require('../models/SchemaPost');
 const { validateMiddleware, validationNewPost } = require('../middleware/midValidationExpress');//midValidationExpress validazione post
 const checkFilePresence = require('../middleware/midCheckFilePresence');// midCheckFilePresence verifica presenza file o URL sulla rotta posted
 const controllerPosts = require('../middleware/midControllPosts');//midControllPosts controlla se il post è salvato o meno dall'utente loggato
+const sendLike = require('../middleware/midCreateNOtifica');//midCreateNOtifica invia notifica
+
 
 
 const router = express.Router();
@@ -248,6 +250,11 @@ router.patch('/like/:id', (req, res) => {
           message: 'Post not found!',
         });
       }
+    
+      sendLike(post.author, req, res, () => {
+        console.log('notifica inviata');
+      });
+
       res.status(200).json({
         statusCode: 200,
         message: 'Post liked successfully',

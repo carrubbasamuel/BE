@@ -10,6 +10,7 @@ const app = express();
 app.use(cors());
 
 
+
 // middleware
 app.use(express.json());
 const { verifyToken } = require("./middleware/midJWT.js");
@@ -31,7 +32,6 @@ const github = require("./OAuth/oAuthGitHub.js");
 app.use("/", google);// google login
 app.use("/", facebook);// facebook login
 app.use("/", github);// github login
-
 
 
 //routes

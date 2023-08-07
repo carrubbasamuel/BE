@@ -26,6 +26,7 @@ const bcrypterAuth = async (req, res, next) => {
 
     req.token = token;
     req.user = {
+      userId: user._id,
       email: user.email,
       name: user.name,
       surname: user.surname,
