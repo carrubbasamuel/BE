@@ -12,7 +12,6 @@ app.set('connectedUsers', socket.connectedUsers);
 
 
 
-
 server.listen(3003, () => {
   console.log('Il server è in esecuzione sulla porta 3003');
 });

@@ -5,7 +5,9 @@ const SchemaPost = require('../models/SchemaPost');
 const { validateMiddleware, validationNewPost } = require('../middleware/midValidationExpress');//midValidationExpress validazione post
 const checkFilePresence = require('../middleware/midCheckFilePresence');// midCheckFilePresence verifica presenza file o URL sulla rotta posted
 const controllerPosts = require('../middleware/midControllPosts');//midControllPosts controlla se il post è salvato o meno dall'utente loggato
-const sendLike = require('../middleware/midCreateNOtifica');//midCreateNOtifica invia notifica
+const {sendLike, sendUnlike} = require('../middleware/midCreateNOtifica');//midCreateNOtifica invia notifica
+const SchemaNotifica = require('../models/SchemaNotifica');
+
 
 
 
@@ -251,7 +253,7 @@ router.patch('/like/:id', (req, res) => {
         });
       }
     
-      sendLike(post.author, req, res, () => {
+      sendLike(post, req, res, () => {
         console.log('notifica inviata');
       });
 
@@ -274,6 +276,7 @@ router.patch('/like/:id', (req, res) => {
 router.patch('/unlike/:id', (req, res) => {
   const { id } = req.params;
   SchemaPost.findByIdAndUpdate(id, { $pull: { likes: req.userId } }, { new: true })
+  
 
     .then((post) => {
       if (!post) {
@@ -283,6 +286,16 @@ router.patch('/unlike/:id', (req, res) => {
           message: 'Post not found!',
         });
       }
+
+      SchemaNotifica.findOneAndDelete({ sender: req.userId, message: req.name + " likes your post" })
+        .then((notifica) => {
+          console.log("Notifica eliminata" + notifica);
+        })
+
+      sendUnlike(post.author, req, res, () => {
+        console.log('notifica inviata');
+      });
+
       res.status(200).json({
         statusCode: 200,
         message: 'Post unliked successfully',

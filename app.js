@@ -39,10 +39,12 @@ const Post = require("./routes/routePost.js");
 const User = require("./routes/routeUser.js");
 const Resource = require("./routes/routeResources.js");
 const Review = require("./routes/routeReview.js");
+const Notifica = require("./routes/routeNotification.js");
 
 
 app.use("/", User);
 app.use("/", Resource);
+app.use("/", verifyToken, Notifica);
 app.use("/", verifyToken, Review);
 app.use("/", verifyToken, Post);
 

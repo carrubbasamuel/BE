@@ -6,7 +6,7 @@ const generateToken = (user) => {
   const jwtSecretKey = process.env.KEY_JWT;
   const token = jwt.sign({
     userId: user._id,
-    email: user.email
+    name: user.name,
   }, jwtSecretKey, {
     expiresIn: '5h',
   });
@@ -28,6 +28,7 @@ const verifyToken = (req, res, next) => {
       return res.status(401).send({ statusCode: 401, message: 'Invalid token' });
     }
     req.userId = decodedToken.userId;
+    req.name = decodedToken.name;
     next();
   });
 };
