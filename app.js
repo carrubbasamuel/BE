@@ -10,6 +10,7 @@ const app = express();
 app.use(cors());
 
 
+
 // middleware
 app.use(express.json());
 const { verifyToken } = require("./middleware/midJWT.js");
@@ -33,16 +34,17 @@ app.use("/", facebook);// facebook login
 app.use("/", github);// github login
 
 
-
 //routes
 const Post = require("./routes/routePost.js");
 const User = require("./routes/routeUser.js");
 const Resource = require("./routes/routeResources.js");
 const Review = require("./routes/routeReview.js");
+const Notifica = require("./routes/routeNotification.js");
 
 
 app.use("/", User);
 app.use("/", Resource);
+app.use("/", verifyToken, Notifica);
 app.use("/", verifyToken, Review);
 app.use("/", verifyToken, Post);
 
