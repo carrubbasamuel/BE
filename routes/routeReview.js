@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
 const Review = require('../models/SchemaReview');
+const SchemaPost = require('../models/SchemaPost');
+
+const { sendComment, sendUncomment } = require('../middleware/midCreateNOtifica');//midCreateNOtifica invia notifica
 
 // Create a review
 router.post('/addReview', (req, res) => {
@@ -14,7 +17,15 @@ router.post('/addReview', (req, res) => {
     });
     newReview.save()
         .then(review => {
-            res.json(review);
+            console.log(review);
+            SchemaPost.findById({_id: postId}).then(post => {
+                sendComment(post, req, res);
+                return res.status(201).json({
+                    statusCode: 201,
+                    message: 'Review created successfully',
+                    review,
+                });
+            });   
         })
         .catch(err => {
             res.json(err);
@@ -54,6 +65,11 @@ router.delete('/deleteReview/:reviewId', (req, res) => {
                     message: 'Review not found!',
                 });
             }
+            SchemaPost.findById({_id: review.postId}).then(post => {
+                sendUncomment(post.author, req, res, () => {
+                    console.log('Notifica inviata');
+                });
+            });
             return res.status(200).json({
                 statusCode: 200,
                 message: 'Review deleted successfully',
