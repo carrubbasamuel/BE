@@ -5,7 +5,7 @@ const SchemaPost = require('../models/SchemaPost');
 const { validateMiddleware, validationNewPost } = require('../middleware/midValidationExpress');//midValidationExpress validazione post
 const checkFilePresence = require('../middleware/midCheckFilePresence');// midCheckFilePresence verifica presenza file o URL sulla rotta posted
 const controllerPosts = require('../middleware/midControllPosts');//midControllPosts controlla se il post è salvato o meno dall'utente loggato
-const {sendLike, sendUnlike} = require('../middleware/midCreateNOtifica');//midCreateNOtifica invia notifica
+const { sendLike, sendUnlike } = require('../middleware/midCreateNOtifica');//midCreateNOtifica invia notifica
 const SchemaNotifica = require('../models/SchemaNotifica');
 
 
@@ -68,7 +68,6 @@ router.post('/posted', checkFilePresence('coverImg'), validationNewPost, validat
     cover: cover || req.body.coverImg,
     readTime: {
       value: req.body.readTime,
-      unit: 'minute',
     },
     content: req.body.content,
     author: req.userId,
@@ -140,6 +139,10 @@ router.delete('/delete/:id', (req, res) => {
           message: 'Post not found!',
         });
       }
+
+      SchemaNotifica.deleteMany({ postId: id }). then((notifica) => {
+        console.log("Notifica eliminata" + notifica);
+      })
       res.status(200).json({
         statusCode: 200,
         message: 'Post deleted successfully',
@@ -244,39 +247,48 @@ router.get('/saved', (req, res) => {
 
 router.patch('/like/:id', (req, res) => {
   const { id } = req.params;
-  SchemaPost.findByIdAndUpdate(id, { $push: { likes: req.userId } }, { new: true })
-    .then((post) => {
-      if (!post) {
-        return res.status(404).json({
-          statusCode: 404,
-          message: 'Post not found!',
+  SchemaPost.findById(id).then((post) => {
+    if (post.likes.includes(req.userId)) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: 'You already liked this post',
+      });
+    }
+    else {
+      SchemaPost.findByIdAndUpdate(id, { $push: { likes: req.userId } }, { new: true })
+        .then((post) => {
+          if (!post) {
+            return res.status(404).json({
+              statusCode: 404,
+              message: 'Post not found!',
+            });
+          }
+
+          sendLike(post, req, res, () => {
+            console.log('notifica inviata');
+          });
+
+          res.status(200).json({
+            statusCode: 200,
+            message: 'Post liked successfully',
+            post,
+          });
+        })
+        .catch((error) => {
+          console.error(error);
+          res.status(500).json({
+            statusCode: 500,
+            message: 'Internal server error',
+          });
         });
-      }
-    
-      sendLike(post, req, res, () => {
-        console.log('notifica inviata');
-      });
-
-      res.status(200).json({
-        statusCode: 200,
-        message: 'Post liked successfully',
-        post,
-      });
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).json({
-        statusCode: 500,
-        message: 'Internal server error',
-      });
-    });
-
+    }
+  });
 });
 
 router.patch('/unlike/:id', (req, res) => {
   const { id } = req.params;
   SchemaPost.findByIdAndUpdate(id, { $pull: { likes: req.userId } }, { new: true })
-  
+
 
     .then((post) => {
       if (!post) {

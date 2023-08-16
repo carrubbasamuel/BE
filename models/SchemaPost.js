@@ -18,8 +18,11 @@ const SchemaPost = new mongoose.Schema({
         required: true,
     },
     readTime: {
-        value: Number,
-        unit: String,
+        value: String,
+        unit: {
+            type: String,
+            default: 'minute',
+        },
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,

@@ -5,7 +5,7 @@ const validationNewPost = [
   body('category').isString().withMessage('Category must be a string'),
   body('cover').isEmpty().withMessage('Cover must be a valid'),
   body('content').isString().withMessage('Content must be a string'),
-  body('readTime.value').isString().withMessage('ReadTime must be a string'),
+  body('readTime').isString().withMessage('ReadTime must be a string'),
 ];
 
 
