@@ -73,8 +73,6 @@ router.post('/posted', checkFilePresence('coverImg'), validationNewPost, validat
     author: req.userId,
   });
 
-
-
   newPost.save()
     .then((newPost) => {
       res.status(201).send({
@@ -84,10 +82,10 @@ router.post('/posted', checkFilePresence('coverImg'), validationNewPost, validat
       });
     })
     .catch((error) => {
-      console.error(error);
       res.status(500).send({
         statusCode: 500,
         message: 'Internal server error',
+        error
       });
     });
 });

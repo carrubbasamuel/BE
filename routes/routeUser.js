@@ -83,8 +83,9 @@ router.post('/register', validationNewUser, validateMiddleware, async (req, res)
       });
     }
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
+    res.status(500).send({
+      statusCode: 500,
+      error: error.errors,
     });
   }
 });

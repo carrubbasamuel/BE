@@ -11,12 +11,13 @@ const validationNewPost = [
 
 
 const validationNewUser = [
-    body('email').isEmail().withMessage('Email must be a valid email'),
-    body('password').isString().withMessage('Password must be at least 6 characters long'),
-    body('name').isString().withMessage('Name must be a string'),
-    body('surname').isString().withMessage('Surname must be a string'),
-    body('born_date').isString().withMessage('Born_date must be a string'),
-]
+  body('email').isEmail().withMessage('Email must be a valid email'),
+  body('password').isString().isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  body('name').isString().withMessage('Name must be a string'),
+  body('surname').isString().withMessage('Surname must be a string'),
+  body('born_date').isString().withMessage('Born_date must be a string'),
+];
+
 
 
 
