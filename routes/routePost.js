@@ -323,6 +323,39 @@ router.patch('/unlike/:id', (req, res) => {
 });
 
 
+router.get('/search', async (req, res) => {
+  const { title } = req.query;
+  try {
+    const allPosts = await SchemaPost.find({ title: { $regex: title, $options: 'i' } })
+      .populate({
+        path: 'author',
+        select: 'name surname avatar',
+      })
+      .sort({ createdAt: -1 });
+
+    if (allPosts.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'No posts found!',
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Posts retrieved successfully',
+      posts: allPosts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      statusCode: 500,
+      message: 'Internal server error',
+    });
+  }
+});
+
+
+
 
 
 module.exports = router;
