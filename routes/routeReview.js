@@ -65,11 +65,7 @@ router.delete('/deleteReview/:reviewId', (req, res) => {
                     message: 'Review not found!',
                 });
             }
-            SchemaPost.findById({_id: review.postId}).then(post => {
-                sendUncomment(post.author, req, res, () => {
-                    console.log('Notifica inviata');
-                });
-            });
+            sendUncomment(review.postId, req, res);
             return res.status(200).json({
                 statusCode: 200,
                 message: 'Review deleted successfully',

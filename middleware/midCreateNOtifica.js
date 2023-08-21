@@ -1,4 +1,5 @@
 const SchemaNotifica = require('../models/SchemaNotifica');
+const SchemaPost = require('../models/SchemaPost');
 const SchemaUser = require('../models/SchemaUser');
 
 
@@ -65,15 +66,20 @@ const sendComment = async (post, req, res) => {
 };
 
 
-const sendUncomment = async (idAuthor, req, res, next) => {
+const sendUncomment = (idPost, req, res, next) => {
     const socketServer = req.app.get('socketServer');
     const connectedUsers = req.app.get('connectedUsers');
-    const find = await SchemaUser.findById(idAuthor);
+    SchemaNotifica.findOneAndDelete({ sender: req.userId, postId: idPost, message: req.name + " commented your post" })
+    .then((notifica) => {
+        console.log("Notifica eliminata" + notifica);
+    })
+    .then(() => {
+        SchemaPost.findById(idPost).then(post => {
+            socketServer.to(connectedUsers[post.author]).emit('uncomment');
+            return
+        })
+    })
 
-    if (find) {
-        socketServer.to(connectedUsers[idAuthor]).emit('uncomment');
-        return;
-    }
     return;
 };
 

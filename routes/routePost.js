@@ -91,6 +91,39 @@ router.post('/posted', checkFilePresence('coverImg'), validationNewPost, validat
 });
 
 
+//Update post by id
+router.patch('/update/:id', checkFilePresence('coverImg'), validationNewPost, validateMiddleware,  (req, res) => {
+  const { id } = req.params;
+  const cover = req.file ? req.file.secure_url : undefined;
+  const updatedPost ={
+    title: req.body.title,
+    category: req.body.category,
+    cover: cover || req.body.coverImg,
+    readTime: {
+      value: req.body.readTime,
+    },
+    content: req.body.content,
+  }
+  SchemaPost.findByIdAndUpdate(id, updatedPost , { new: true }).then((post) => {
+    if (!post) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'Post not found!',
+      });
+    }
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Post updated successfully',
+      post,
+    });
+  }).catch((error) => {
+    console.error(error);
+    res.status(500).json({
+      statusCode: 500,
+      message: 'Internal server error',
+    });
+  });
+});
 
 
 // Get posts by author
@@ -353,6 +386,10 @@ router.get('/search', async (req, res) => {
     });
   }
 });
+
+
+
+
 
 
 
