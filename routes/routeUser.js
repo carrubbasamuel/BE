@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const SchemaUser = require('../models/SchemaUser');
 const SchemaPost = require('../models/SchemaPost');
 const SchemaReview = require('../models/SchemaReview');
+const SchemaNotifica = require('../models/SchemaNotifica');
 
 // Router
 const router = express.Router();
@@ -82,8 +83,9 @@ router.post('/register', validationNewUser, validateMiddleware, async (req, res)
       });
     }
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
+    res.status(500).send({
+      statusCode: 500,
+      error: error.errors,
     });
   }
 });
@@ -99,6 +101,7 @@ router.delete('/delete', verifyToken, async (req, res) => {
 
     const delateReview = await SchemaReview.deleteMany({ authorId: userId });
     const deletedPosts = await SchemaPost.deleteMany({ author: userId });
+    const deleteNotificas = await SchemaNotifica.deleteMany({ $or: [{ sender: userId }, { reciver: userId }] });
     const deleteLike = await SchemaPost.updateMany({ likes: userId }, { $pull: { likes: userId } });
     const deleteSave = await SchemaPost.updateMany({ saved: userId }, { $pull: { saved: userId } });
     const deletedUser = await SchemaUser.findByIdAndDelete(userId);
@@ -116,7 +119,8 @@ router.delete('/delete', verifyToken, async (req, res) => {
         deletedPosts,
         delateReview,
         deleteLike,
-        deleteSave
+        deleteSave,
+        deleteNotificas,
       },
     });
   } catch (error) {

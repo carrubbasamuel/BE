@@ -15,7 +15,6 @@ function setupSocketServer(server) {
   socketServer.on('connection', (socket) => {
     socket.on('setUserId', (userId) => {
       connectedUsers[userId] = socket.id;
-      socketServer.to(socket.id).emit('connectedUsers', connectedUsers[userId]);
       console.log('Utenti connessi:', connectedUsers);
     });
 
